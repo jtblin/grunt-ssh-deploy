@@ -79,11 +79,11 @@
         grunt.log.subhead('-------------------------------EXEC BEFORE DEPLOY COMMANDS');
         exec('', true, callback);
       };
-      // creates folder under releases
-      var createReleaseFolder = function(callback) {
-        grunt.log.subhead('-------------------------------CREATE REMOTE FILES');
-        var createFolder  = 'cd ' + options.deploy_path + '/releases && mkdir ' + timeStamp;
-        exec(createFolder, options.debug, callback);
+      // create releases folder on server
+      var createReleasesFolder = function(callback) {
+        grunt.log.subhead('-------------------------------CREATE RELEASES FOLDER');
+        var command = "mkdir -p " + options.deploy_path + "/releases/" + timeStamp;
+        exec(command, options.debug, callback);
       };
       // zips local content with respecting exclude list
       var zipContentForDeployment = function(callback) {
@@ -96,12 +96,6 @@
         }
         var command = "tar " + excludeList + ' -czvf deploy.tgz .';
         execLocal(command, callback);
-      };
-      // create releases folder on server
-      var createReleasesFolder = function(callback) {
-        grunt.log.subhead('-------------------------------CREATE RELEASES FOLDER');
-        var command = "mkdir -p " + options.deploy_path + "/releases/" + timeStamp;
-        exec(command, options.debug, callback);
       };
       // upload zipfile to server via scp
       var uploadZipFile = function(callback) {
@@ -177,10 +171,9 @@
        *
        ---------------------------------------*/
       async.series([
-        executeBeforeTasks, 
-        createReleaseFolder, 
-        zipContentForDeployment,
+        executeBeforeTasks,
         createReleasesFolder,
+        zipContentForDeployment,
         uploadZipFile,
         unzipOnRemote,
         executeWarmupCommands,
