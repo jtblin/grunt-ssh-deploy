@@ -29,13 +29,10 @@ Your remote server target folder for deployment has following layout:
                             |-<timestamp1> 
                             |
                             |-<timestamp2>
-```       
-### Setup
-
-Please create a folder named `mkdir releases` under your deploy target folder. A setup task is not yet provided.
+```
 
 ### Overview
-In your project's Gruntfile, add a section named `deploy` to the data object passed into `grunt.initConfig()`.
+In your project's Gruntfile, add a section named `ssh-deploy` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
@@ -52,20 +49,25 @@ grunt.initConfig({
 
           // usage with SSH Agent forwarding
           agent: process.env.SSH_AUTH_SOCK
+
+          // usage with private key
+          username: 'username',
+          privateKey: grunt.file.read('deploy/private_key.pem'),
+          privateKeyPath: 'deploy/private_key.pem'
         }],
         cmds_before_deploy: ["some cmds you may want to exec before deploy"],
         cmds_warmup: ["some cmds to be executed before symlink is switched to new deployment result"],
         cmds_after_deploy: ["forever restart", "some other cmds you want to exec after deploy"],
         deploy_path: '/path/to/deployment',
         // list of folders and files that should be excluded from deployment
-        exclude_list: ['./node_modules/*', './private'] 
+        exclude_list: ['node_modules', 'private']
       }
     }
   },
 })
 ```
 ###Current Execution Order
-1. create new folder under releases/
+1. create releases/ folder and new folder under releases/
 2. zip local project folder with exclude parameters
 3. upload tgz file to remote
 4. execute warmup commands on remote machine etc. restarting services, delete fragments
@@ -75,12 +77,13 @@ grunt.initConfig({
 8. close connection
 
 ###Authentication
-currenty password authentication via username and password and agent SSH agent forwarding is possible. 
+Currently password authentication via username and password and agent SSH agent forwarding is possible.
 With SSH agent forwarding your personal keys can be used for authentication but host aliases are currently not supported
 Please see documentation of [node-SSH2](https://github.com/mscdex/ssh2) plugin.
+To use private keys, both the string and the path are required for ssh and scp. TODO: read string from path.
 
 ### Debugging
-You can have a look inside every step that is executed by using `grunt deploy --debug`
+You can have a look inside every step that is executed by using `grunt ssh-deploy --debug`
 All local and remote STDOUT and STDERR output will be shown on the console.
 
 ## Contributing

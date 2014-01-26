@@ -51,6 +51,7 @@
           grunt.log.debug('stderr: ' + stderr);
           if (err !== null) {
             grunt.log.errorlns('exec error: ' + err);
+            process.exit();
           }    
           nextFun(); 
         });
@@ -59,7 +60,10 @@
       // executes a remote command via ssh
       var exec = function(cmd, showLog, next){
         connection.exec(cmd, function(err, stream) {
-          if (err) console.log(err);
+          if (err) {
+            grunt.log.errorlns('exec error: ' + err);
+            process.exit();
+          }
           stream.on('data', function(data, extended) {
             grunt.log.debug((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ') + data);
           });
@@ -85,20 +89,28 @@
       // zips local content with respecting exclude list
       var zipContentForDeployment = function(callback) {
         grunt.log.subhead('-------------------------------ZIPPING FOLDER');
-        var excludeList = " --exclude='./deploy.tgz'";
+        var excludeList = "--exclude='./deploy.tgz'";
         if (options.exclude_list) {
           options.exclude_list.map(function(item){
             excludeList += " --exclude='./" + item + "'";
           });
         }
-        var command = "tar -czvf deploy.tgz ." + excludeList;
+        var command = "tar " + excludeList + ' -czvf deploy.tgz .';
         execLocal(command, callback);
+      };
+      // create releases folder on server
+      var createReleasesFolder = function(callback) {
+        grunt.log.subhead('-------------------------------CREATE RELEASES FOLDER');
+        var command = "mkdir -p " + options.deploy_path + "/releases/" + timeStamp;
+        exec(command, options.debug, callback);
       };
       // upload zipfile to server via scp
       var uploadZipFile = function(callback) {
         grunt.log.subhead('-------------------------------UPLOAD ZIPFILE');
         var scpAuthString = server.username + "@" + server.host + ":" + options.deploy_path + "/releases/" + timeStamp + '/';
-        var command = "scp ./deploy.tgz " + scpAuthString;
+        var command = "scp";
+        if (server.privateKeyPath) command += ' -i ' + server.privateKeyPath;
+        command += " ./deploy.tgz " + scpAuthString;
         execLocal(command, callback);
       };
       // unzips on remote and removes zipfolder
@@ -109,7 +121,6 @@
         var untar = "tar -xzvf deploy.tgz";
         var cleanup = "rm " + options.deploy_path + "/releases/" + timeStamp + "/deploy.tgz";
         var command = goToCurrent + " && " + untar + " && " + cleanup;
-        console.log(callback)
         exec(command, options.debug, callback);
       };
 
@@ -170,6 +181,7 @@
         executeBeforeTasks, 
         createReleaseFolder, 
         zipContentForDeployment,
+        createReleasesFolder,
         uploadZipFile,
         unzipOnRemote,
         executeWarmupCommands,
