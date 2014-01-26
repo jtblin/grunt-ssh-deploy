@@ -5,9 +5,7 @@
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
 
-
-
-  grunt.registerMultiTask('deploy', 'start deployment of the whole project', function() {
+  grunt.registerMultiTask('ssh-deploy', 'start deployment of the whole project', function() {
     var self = this;
     var done = self.async();
     var Connection = require('ssh2');
@@ -162,11 +160,6 @@
       var closeConnection = function(callback) {
         connection.end();
       };
-
-
-
-
-
 
       /*---------------------------------------
        *

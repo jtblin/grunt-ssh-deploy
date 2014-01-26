@@ -39,7 +39,7 @@ In your project's Gruntfile, add a section named `deploy` to the data object pas
 
 ```js
 grunt.initConfig({
-  deploy: {
+  "ssh-deploy": {
     liveservers: {
       options:{
         servers: [{

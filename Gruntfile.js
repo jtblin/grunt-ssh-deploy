@@ -29,13 +29,13 @@
     },
 
     // Configuration to be run (and then tested).
-    deploy: {
+    "ssh-deploy": {
       liveservers: {
         options:{
           servers: require('servers').servers(),
           cmds_before_deploy: [],
           cmds_after_deploy: [],
-          deploy_path: '~/grunt-plugins/grunt-deploy'
+          deploy_path: '~/grunt-plugins/grunt-ssh-deploy'
         }
       }
       /*default_options: {
@@ -77,5 +77,5 @@
 
   // By default, lint and run all tests.
   //grunt.registerTask('default', ['jshint', 'test']);
-  grunt.registerTask('default', ['deploy']);
+  grunt.registerTask('default', ['ssh-deploy']);
 };
