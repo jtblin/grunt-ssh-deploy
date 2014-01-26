@@ -128,7 +128,7 @@
         if (options.cmds_warmup) {
           grunt.log.subhead('-------------------------------EXECUTE WARMUP COMMANDS');
           var changeToDeployDir = 'cd ' + options.deploy_path + '/releases/' + timeStamp;
-          var command = changeToDeployDir + ' && ' + options.cmds_warmup;
+          var command = changeToDeployDir + ' && ' + options.cmds_warmup.join(';');
           exec(command, options.debug, callback);
         }
         else {
@@ -157,8 +157,8 @@
       var executePostCommands = function(callback) {
         if (options.cmds_after_deploy) {
           grunt.log.subhead('-------------------------------EXECUTE POSTDEPLOY COMMANDS');
-          var changeToDeployDir = 'cd ' + options.deploy_path + '/releases/' + timeStamp;
-          var command = changeToDeployDir + ' && ' + options.cmds_after_deploy;
+          var changeToDeployDir = 'cd ' + options.deploy_path + '/current';
+          var command = changeToDeployDir + ' && ' + options.cmds_after_deploy.join(';');
           exec(command, options.debug, callback);
         }
         else {
