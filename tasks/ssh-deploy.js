@@ -13,7 +13,7 @@
     var timeStamp = moment().format('YYYYMMDDHHmmssSSS');
     var options = self.options();
     var async = require('async');
-
+    var maxBuffer = 800 * 1024;
 
     options.servers.forEach(function(server){
       var c = new Connection();
@@ -41,11 +41,10 @@
       // require local command handling
       var sys = require('sys')
       var childProcessExec = require('child_process').exec;
-      var child;
-      
+
       var execLocal = function(cmd, next) {
         var nextFun = next; 
-        childProcessExec(cmd, function(err, stdout, stderr){
+        childProcessExec(cmd, {maxBuffer: maxBuffer}, function(err, stdout, stderr){
           grunt.log.debug(cmd); 
           grunt.log.debug('stdout: ' + stdout);
           grunt.log.debug('stderr: ' + stderr);
