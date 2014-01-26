@@ -74,7 +74,8 @@ grunt.initConfig({
 5. switch symlinks to new folder 
 6. execute local cleanup
 7. execute post commands on remote host
-8. close connection
+8. keep only 3 recent releases
+9. close connection
 
 ###Authentication
 Currently password authentication via username and password and agent SSH agent forwarding is possible.

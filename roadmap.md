@@ -1,6 +1,5 @@
 # Must-Have
 
-- delete old directories (keep 3)
 - actually implement `beforeTasks` hook
 
 # Should-Have

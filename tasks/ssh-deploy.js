@@ -1,6 +1,6 @@
- 'use strict';
+'use strict';
 
- module.exports = function(grunt) {
+module.exports = function(grunt) {
 
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
@@ -43,19 +43,19 @@
       var childProcessExec = require('child_process').exec;
 
       var execLocal = function(cmd, next) {
-        var nextFun = next; 
+        var nextFun = next;
         childProcessExec(cmd, {maxBuffer: maxBuffer}, function(err, stdout, stderr){
-          grunt.log.debug(cmd); 
+          grunt.log.debug(cmd);
           grunt.log.debug('stdout: ' + stdout);
           grunt.log.debug('stderr: ' + stderr);
           if (err !== null) {
             grunt.log.errorlns('exec error: ' + err);
             process.exit();
-          }    
-          nextFun(); 
+          }
+          nextFun();
         });
       };
-      
+
       // executes a remote command via ssh
       var exec = function(cmd, showLog, next){
         connection.exec(cmd, function(err, stream) {
@@ -146,7 +146,7 @@
         var command = 'rm deploy.tgz';
         execLocal(command, callback);
       };
-      
+
       // executing post commands on remote machine
       var executePostCommands = function(callback) {
         if (options.cmds_after_deploy) {
@@ -158,6 +158,28 @@
         else {
           callback();
         }
+      };
+
+      // executing post commands on remote machine
+      var executePostCommands = function(callback) {
+        if (options.cmds_after_deploy) {
+          grunt.log.subhead('-------------------------------EXECUTE POSTDEPLOY COMMANDS');
+          var changeToDeployDir = 'cd ' + options.deploy_path + '/current';
+          var command = changeToDeployDir + ' && ' + options.cmds_after_deploy.join(';');
+          exec(command, options.debug, callback);
+        }
+        else {
+          callback();
+        }
+      };
+
+      // keep only 3 recent releases
+      var cleanupOldReleases = function(callback) {
+        grunt.log.subhead('-------------------------------KEEP ONLY RECENT FOLDERS');
+        var changeToDeployDir = 'cd ' + options.deploy_path + '/releases';
+        var numberOfReleasesToKeep = options.numberOfReleasesToKeep || 3;
+        var command = changeToDeployDir + ' && ls -dt */ | tail -n +' + (numberOfReleasesToKeep+1) + ' | xargs rm -rf';
+        exec(command, options.debug, callback);
       };
 
       // closing connection to remote server
@@ -180,6 +202,7 @@
         changeSymLink,
         localCleanup,
         executePostCommands,
+        cleanupOldReleases,
         closeConnection
       ]);
     };
